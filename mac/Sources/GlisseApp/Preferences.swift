@@ -18,6 +18,13 @@ final class Preferences {
         set { defaults.set(newValue, forKey: "gain") }
     }
 
+    /// Exposant de la courbe de réponse : 1 = proportionnel, en dessous les petits gestes sont amplifiés et
+    /// les grands retenus, pour compenser l'accélération qu'iOS ajoute par-dessus celle de macOS.
+    var linearity: Double {
+        get { defaults.object(forKey: "linearity") as? Double ?? 0.75 }
+        set { defaults.set(newValue, forKey: "linearity") }
+    }
+
     /// Points de poussée contre le bord avant de passer sur l'iPhone.
     var resistance: Double {
         get { defaults.object(forKey: "resistance") as? Double ?? 80 }
@@ -48,6 +55,19 @@ final class Preferences {
     var invertScroll: Bool {
         get { defaults.bool(forKey: "invertScroll") }
         set { defaults.set(newValue, forKey: "invertScroll") }
+    }
+
+    /// Le raccourci qui bascule la souris entre le Mac et l'iPhone.
+    var hotKey: HotKey {
+        get {
+            guard let code = defaults.object(forKey: "hotKeyCode") as? Int,
+                  let mods = defaults.object(forKey: "hotKeyModifiers") as? Int else { return .default }
+            return HotKey(keyCode: Int64(code), rawModifiers: UInt64(mods))
+        }
+        set {
+            defaults.set(Int(newValue.keyCode), forKey: "hotKeyCode")
+            defaults.set(Int(newValue.rawModifiers), forKey: "hotKeyModifiers")
+        }
     }
 
     /// Le port série du dongle ; vide pour le trouver tout seul.

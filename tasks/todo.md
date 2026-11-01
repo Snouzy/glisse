@@ -25,7 +25,15 @@ le curseur estimé ressort par le bord côté Mac, le Mac reprend la main.
 
 ## v2, si la v1 plaît
 
-- Clavier dans le même appareil BLE (descripteur HID composite, pas fourni par HijelHID).
+- [x] Clavier dans le même appareil BLE (descripteur HID composite, NimBLE direct).
+- [x] Courbe de réponse (vitesse × linéarité) pour un curseur plus naturel ; fenêtre de réglages SwiftUI
+      (⌘,) à la place des sous-menus, chaque réglage appliqué tout de suite.
+- [x] Raccourci réglable (enregistreur dans les Réglages), redémarrage du dongle par DTR/RTS, confirmation
+      avant d'oublier l'appairage, retour du curseur à sa place après un passage par le raccourci.
+- [x] Dépôt public : README anglais + français, icône, images (hero, schéma, captures hors écran), licence MIT.
+- Interface en anglais (l'app est en français seulement).
+- Si la courbe ne suffit pas : lire les deltas bruts de la souris (IOHIDManager) au lieu des deltas
+  déjà accélérés par macOS.
 - Presse-papiers Mac → iPhone en tapant le texte.
 - Deux bords (iPhone à gauche ou à droite), plusieurs iPhone.
 

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" font-family="-apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#171b2e"/>
+      <stop offset="1" stop-color="#0a0c15"/>
+    </linearGradient>
+    <linearGradient id="phoneScreen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b4ad8"/>
+      <stop offset="1" stop-color="#1b2470"/>
+    </linearGradient>
+    <linearGradient id="trail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8fb4ff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#8fb4ff" stop-opacity="0.9"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="640" height="320" fill="url(#bg)"/>
+
+  <!-- text -->
+  <text x="44" y="118" font-size="64" font-weight="700" fill="#ffffff" letter-spacing="-2">Glisse</text>
+  <text x="46" y="154" font-size="18" fill="#c7cde6">Your Mac's mouse and keyboard,</text>
+  <text x="46" y="178" font-size="18" fill="#c7cde6">on your iPhone.</text>
+  <text x="46" y="204" font-size="13" fill="#8891b5">Push the cursor past the edge of the screen.</text>
+  <text x="46" y="222" font-size="13" fill="#8891b5">Free, open source: a $5 ESP32 dongle and a menu bar app.</text>
+  <g transform="translate(46 246)" font-size="12" fill="#6f7797">
+    <rect x="0" y="0" width="92" height="24" rx="12" fill="#ffffff" fill-opacity="0.07"/><text x="46" y="16" text-anchor="middle">Swift · SwiftUI</text>
+    <rect x="100" y="0" width="74" height="24" rx="12" fill="#ffffff" fill-opacity="0.07"/><text x="137" y="16" text-anchor="middle">ESP32 BLE</text>
+    <rect x="182" y="0" width="60" height="24" rx="12" fill="#ffffff" fill-opacity="0.07"/><text x="212" y="16" text-anchor="middle">MIT</text>
+  </g>
+
+  <!-- Mac edge -->
+  <rect x="420" y="40" width="80" height="240" rx="10" fill="#1b1e2b"/>
+  <rect x="428" y="48" width="64" height="224" rx="6" fill="#222b55"/>
+  <rect x="488" y="48" width="4" height="224" rx="2" fill="#8fb4ff" filter="url(#glow)"/>
+
+  <!-- iPhone -->
+  <rect x="528" y="36" width="112" height="248" rx="24" fill="#0c0d14" stroke="#363b55" stroke-width="2"/>
+  <rect x="535" y="43" width="98" height="234" rx="19" fill="url(#phoneScreen)"/>
+  <rect x="566" y="51" width="36" height="10" rx="5" fill="#0c0d14"/>
+  <g fill="#ffffff" fill-opacity="0.16">
+    <rect x="548" y="76" width="20" height="20" rx="6"/><rect x="574" y="76" width="20" height="20" rx="6"/><rect x="600" y="76" width="20" height="20" rx="6"/>
+    <rect x="548" y="102" width="20" height="20" rx="6"/><rect x="574" y="102" width="20" height="20" rx="6"/><rect x="600" y="102" width="20" height="20" rx="6"/>
+  </g>
+  <circle cx="586" cy="170" r="11" fill="#ffffff" fill-opacity="0.22" stroke="#ffffff" stroke-opacity="0.85" stroke-width="2"/>
+  <circle cx="586" cy="170" r="2.5" fill="#ffffff"/>
+
+  <!-- trail + cursors -->
+  <path d="M430 140 C 470 140, 500 160, 525 166 S 565 172, 576 170" fill="none" stroke="url(#trail)" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 8"/>
+  <g fill="#ffffff" stroke="#111" stroke-width="1.5" stroke-linejoin="round">
+    <path transform="translate(432 138) scale(0.8)" d="M0 0 L0 19 L4.6 15 L8.4 23.2 L12.4 21.4 L8.6 13.4 L14 13 Z" fill-opacity="0.35" stroke-opacity="0.35"/>
+    <path transform="translate(472 148)" d="M0 0 L0 19 L4.6 15 L8.4 23.2 L12.4 21.4 L8.6 13.4 L14 13 Z" fill-opacity="0.85" stroke-opacity="0.85"/>
+  </g>
+</svg>

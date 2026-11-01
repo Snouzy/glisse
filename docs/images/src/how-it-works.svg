@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="230" viewBox="0 0 860 230" font-family="-apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#15192a"/>
+      <stop offset="1" stop-color="#0b0d16"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8fb4ff"/>
+    </marker>
+  </defs>
+  <rect width="860" height="230" rx="18" fill="url(#bg)"/>
+
+  <g font-size="13" fill="#c7cde6" text-anchor="middle">
+    <!-- Mac -->
+    <rect x="30" y="50" width="180" height="110" rx="14" fill="#ffffff" fill-opacity="0.06" stroke="#3a4266"/>
+    <text x="120" y="80" font-size="16" font-weight="600" fill="#ffffff">Mac</text>
+    <text x="120" y="104">menu bar app</text>
+    <text x="120" y="124" fill="#8891b5">CGEventTap: mouse,</text>
+    <text x="120" y="142" fill="#8891b5">keyboard, scroll</text>
+
+    <!-- dongle -->
+    <rect x="340" y="50" width="180" height="110" rx="14" fill="#ffffff" fill-opacity="0.06" stroke="#3a4266"/>
+    <text x="430" y="80" font-size="16" font-weight="600" fill="#ffffff">ESP32 dongle</text>
+    <text x="430" y="104">Bluetooth HID</text>
+    <text x="430" y="124" fill="#8891b5">mouse + keyboard,</text>
+    <text x="430" y="142" fill="#8891b5">one report per interval</text>
+
+    <!-- iPhone -->
+    <rect x="650" y="50" width="180" height="110" rx="14" fill="#ffffff" fill-opacity="0.06" stroke="#3a4266"/>
+    <text x="740" y="80" font-size="16" font-weight="600" fill="#ffffff">iPhone</text>
+    <text x="740" y="104">AssistiveTouch</text>
+    <text x="740" y="124" fill="#8891b5">sees an ordinary</text>
+    <text x="740" y="142" fill="#8891b5">Bluetooth mouse</text>
+
+    <!-- arrows -->
+    <line x1="214" y1="105" x2="334" y2="105" stroke="#8fb4ff" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="274" y="92" font-size="12" fill="#8fb4ff">USB serial</text>
+    <text x="274" y="126" font-size="10" fill="#8891b5" font-family="Menlo, monospace">M dx dy · K keys</text>
+
+    <line x1="524" y1="105" x2="644" y2="105" stroke="#6fe3ff" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="584" y="92" font-size="12" fill="#6fe3ff">Bluetooth LE</text>
+    <text x="584" y="126" font-size="11" fill="#8891b5">11–15 ms, bonded</text>
+  </g>
+
+  <text x="430" y="200" font-size="13" fill="#8891b5" text-anchor="middle">No app on the iPhone. Nothing on the network. The phone just thinks it has a mouse.</text>
+</svg>

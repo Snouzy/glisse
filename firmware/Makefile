@@ -8,7 +8,7 @@
 # Prérequis (une fois) :
 #   arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
 #   arduino-cli core update-index && arduino-cli core install esp32:esp32
-#   arduino-cli lib install NimBLE-Arduino HijelHID_BLEMouse
+#   arduino-cli lib install NimBLE-Arduino
 
 BOARD ?= classic
 SKETCH := glisse

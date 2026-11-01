@@ -75,6 +75,19 @@ final class SerialPort {
         return true
     }
 
+    /// Redémarre la carte sans fermer le port : la séquence d'esptool sur les lignes de contrôle (DTR relâché,
+    /// RTS tenu 100 ms) tire la broche EN de l'ESP32. Le dongle revient en annonce, liens Bluetooth gardés.
+    func resetBoard() {
+        guard fd >= 0 else { return }
+        var dtr = TIOCM_DTR, rts = TIOCM_RTS
+        _ = ioctl(fd, TIOCMBIC, &dtr)
+        _ = ioctl(fd, TIOCMBIS, &rts)
+        usleep(100_000)
+        _ = ioctl(fd, TIOCMBIC, &rts)
+        buffer.removeAll()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in self?.write(Wire.status) }
+    }
+
     private func close() {
         guard fd >= 0 else { return }
         source?.cancel()

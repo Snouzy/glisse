@@ -1,4 +1,5 @@
 mac/.build/
+mac/.swiftpm/
 mac/build/
 firmware/build/
 .DS_Store

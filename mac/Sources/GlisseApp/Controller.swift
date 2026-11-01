@@ -18,6 +18,7 @@ final class Controller {
     private var tap: EventTap!
     private var edgeGuard: EdgeGuard
     private var cursor: PhoneCursor
+    private var response: Response
     private var buttons: MouseButtons = []
     private var keyboard = KeyboardState()
     private(set) var intervalMs: Int?
@@ -28,14 +29,16 @@ final class Controller {
     /// Où le curseur du Mac est parqué pendant que la souris est sur l'iPhone.
     private var parked: CGPoint = .zero
 
-    /// ⌃⌥⌘P bascule à la main.
-    private let hotKeyCode: Int64 = 35  // P
-    private let hotKeyFlags: CGEventFlags = [.maskControl, .maskAlternate, .maskCommand]
+    /// Le raccourci qui bascule à la main (⌃⌥⌘P par défaut), réglable.
+    private(set) var hotKey = Preferences.shared.hotKey
+    /// Suspendu pendant qu'on enregistre un nouveau raccourci dans les Réglages.
+    var hotKeyEnabled = true
 
     init() {
         serial = SerialPort(preferredPath: { Preferences.shared.portPath })
         edgeGuard = EdgeGuard(edge: prefs.edge, resistance: prefs.resistance)
-        cursor = PhoneCursor(size: prefs.phoneSize, macSide: prefs.edge.opposite, gain: prefs.gain, returnResistance: prefs.returnResistance)
+        cursor = PhoneCursor(size: prefs.phoneSize, macSide: prefs.edge.opposite, gain: 1, returnResistance: prefs.returnResistance)
+        response = Response(gain: prefs.gain, linearity: prefs.linearity)
         // Pas de `self?.handle(…) ?? event` : le chaînage optionnel aplatit le nil qui veut dire « avaler »,
         // et l'événement passait. Un nil de handle doit rester un nil.
         tap = EventTap { [weak self] type, event in
@@ -70,7 +73,23 @@ final class Controller {
     /// À rappeler quand un réglage change.
     func applyPreferences() {
         edgeGuard = EdgeGuard(edge: prefs.edge, resistance: prefs.resistance)
-        cursor = PhoneCursor(size: prefs.phoneSize, macSide: prefs.edge.opposite, gain: prefs.gain, returnResistance: prefs.returnResistance)
+        response = Response(gain: prefs.gain, linearity: prefs.linearity)
+        hotKey = prefs.hotKey
+        // Changer la taille ou le côté en plein vol perdrait la position estimée : on ne remplace le curseur
+        // virtuel que sur le Mac.
+        if side == .mac {
+            cursor = PhoneCursor(size: prefs.phoneSize, macSide: prefs.edge.opposite, gain: 1, returnResistance: prefs.returnResistance)
+        }
+    }
+
+    /// Redémarre le dongle : quand il se croit encore relié à un iPhone qui l'a oublié, par exemple.
+    func resetDongle() {
+        if side == .phone { returnToMac(yFraction: 0.5, pointerAtMacSide: false) }
+        phonePointerAtMacSide = false
+        dongle = nil
+        intervalMs = nil
+        serial.resetBoard()
+        onChange?()
     }
 
     var statusText: String {
@@ -93,9 +112,10 @@ final class Controller {
             guard canCross else { NSSound.beep(); return }
             let location = CGEvent(source: nil)?.location ?? .zero
             let display = Displays.bounds(containing: location) ?? Displays.main
-            enterPhone(from: display, yFraction: (location.y - display.minY) / display.height)
+            // Parti par le raccourci : le curseur reste où il était, et il y sera au retour.
+            enterPhone(from: display, yFraction: (location.y - display.minY) / display.height, parkAt: location)
         case .phone:
-            returnToMac(yFraction: cursor.position.y / cursor.size.height, pointerAtMacSide: false)
+            returnToMac(yFraction: cursor.position.y / cursor.size.height, pointerAtMacSide: false, at: parked)
         }
     }
 
@@ -104,8 +124,8 @@ final class Controller {
     private func handle(_ type: CGEventType, _ event: CGEvent) -> CGEvent? {
         if type == .keyDown || type == .keyUp || type == .flagsChanged {
             let code = event.getIntegerValueField(.keyboardEventKeycode)
-            let flags = event.flags.intersection([.maskControl, .maskAlternate, .maskCommand, .maskShift])
-            if type == .keyDown, code == hotKeyCode, flags == hotKeyFlags {
+            let flags = event.flags.intersection(HotKey.modifierMask)
+            if type == .keyDown, hotKeyEnabled, hotKey.matches(keyCode: code, flags: flags) {
                 DispatchQueue.main.async { self.toggle() }
                 return nil
             }
@@ -147,9 +167,10 @@ final class Controller {
         if event.location != parked { CGWarpMouseCursorPosition(parked) }
         switch type {
         case .mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged:
-            let dx = Double(event.getIntegerValueField(.mouseEventDeltaX))
-            let dy = Double(event.getIntegerValueField(.mouseEventDeltaY))
-            switch cursor.move(dx: dx, dy: dy) {
+            let raw = CGVector(dx: Double(event.getIntegerValueField(.mouseEventDeltaX)),
+                               dy: Double(event.getIntegerValueField(.mouseEventDeltaY)))
+            let shaped = response.apply(dx: raw.dx, dy: raw.dy)
+            switch cursor.move(dx: shaped.dx, dy: shaped.dy) {
             case .moved(let ux, let uy):
                 if ux != 0 || uy != 0 { serial.write(Wire.move(dx: ux, dy: uy)) }
             case .returnedToMac(let y):
@@ -182,7 +203,7 @@ final class Controller {
     /// premier passage, après ⌃⌥⌘P ou une reconnexion du dongle : on l'y envoie alors d'une grande poussée.
     private var phonePointerAtMacSide = false
 
-    private func enterPhone(from display: CGRect, yFraction: Double) {
+    private func enterPhone(from display: CGRect, yFraction: Double, parkAt: CGPoint? = nil) {
         exitDisplay = display
         side = .phone
         buttons = []
@@ -196,12 +217,13 @@ final class Controller {
         CGAssociateMouseAndMouseCursorPosition(0)
         CursorHider.hide()
         let x = prefs.edge == .right ? display.maxX - 1 : display.minX
-        parked = CGPoint(x: x, y: display.minY + yFraction * display.height)
+        parked = parkAt ?? CGPoint(x: x, y: display.minY + yFraction * display.height)
         CGWarpMouseCursorPosition(parked)
         shield.show(around: parked)
     }
 
-    private func returnToMac(yFraction: Double, pointerAtMacSide: Bool = true) {
+    /// `at` : où remettre le curseur du Mac ; sinon au bord, à la hauteur `yFraction`.
+    private func returnToMac(yFraction: Double, pointerAtMacSide: Bool = true, at point: CGPoint? = nil) {
         guard side == .phone else { return }
         log.notice("→ Mac, hauteur \(yFraction, format: .fixed(precision: 2)), pointeur iOS au bord : \(pointerAtMacSide)")
         phonePointerAtMacSide = pointerAtMacSide
@@ -213,7 +235,7 @@ final class Controller {
         let display = exitDisplay == .zero ? Displays.main : exitDisplay
         let x = prefs.edge == .right ? display.maxX - 2 : display.minX + 1
         let y = display.minY + min(max(yFraction, 0), 1) * (display.height - 1)
-        CGWarpMouseCursorPosition(CGPoint(x: x, y: y))
+        CGWarpMouseCursorPosition(point ?? CGPoint(x: x, y: y))
         CGAssociateMouseAndMouseCursorPosition(1)
         CursorHider.show()
         shield.hide()

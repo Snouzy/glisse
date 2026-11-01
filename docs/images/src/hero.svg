@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="440" viewBox="0 0 860 440" font-family="-apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#15192a"/>
+      <stop offset="1" stop-color="#0b0d16"/>
+    </linearGradient>
+    <linearGradient id="macScreen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2b3568"/>
+      <stop offset="1" stop-color="#121a3b"/>
+    </linearGradient>
+    <linearGradient id="phoneScreen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b4ad8"/>
+      <stop offset="1" stop-color="#1b2470"/>
+    </linearGradient>
+    <linearGradient id="trail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8fb4ff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#8fb4ff" stop-opacity="0.9"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity="0.55"/>
+    </filter>
+  </defs>
+
+  <rect width="860" height="440" rx="18" fill="url(#bg)"/>
+
+  <!-- Mac display -->
+  <g filter="url(#shadow)">
+    <rect x="60" y="58" width="480" height="300" rx="16" fill="#1b1e2b"/>
+    <rect x="72" y="70" width="456" height="276" rx="8" fill="url(#macScreen)"/>
+    <!-- menu bar -->
+    <rect x="72" y="70" width="456" height="18" rx="8" fill="#ffffff" fill-opacity="0.08"/>
+    <circle cx="505" cy="79" r="4" fill="#9fb3ff" fill-opacity="0.9"/>
+    <!-- windows -->
+    <rect x="96" y="108" width="250" height="160" rx="8" fill="#ffffff" fill-opacity="0.07"/>
+    <rect x="96" y="108" width="250" height="22" rx="8" fill="#ffffff" fill-opacity="0.08"/>
+    <circle cx="108" cy="119" r="3.5" fill="#ff5f57"/><circle cx="120" cy="119" r="3.5" fill="#febc2e"/><circle cx="132" cy="119" r="3.5" fill="#28c840"/>
+    <rect x="110" y="146" width="150" height="8" rx="4" fill="#ffffff" fill-opacity="0.18"/>
+    <rect x="110" y="164" width="200" height="8" rx="4" fill="#ffffff" fill-opacity="0.12"/>
+    <rect x="110" y="182" width="120" height="8" rx="4" fill="#ffffff" fill-opacity="0.12"/>
+    <rect x="110" y="200" width="180" height="8" rx="4" fill="#ffffff" fill-opacity="0.12"/>
+    <rect x="364" y="140" width="140" height="100" rx="8" fill="#ffffff" fill-opacity="0.06"/>
+    <!-- stand -->
+    <rect x="270" y="358" width="60" height="30" fill="#1b1e2b"/>
+    <rect x="220" y="386" width="160" height="10" rx="5" fill="#1b1e2b"/>
+    <!-- the lit edge -->
+    <rect x="522" y="70" width="6" height="276" rx="3" fill="#8fb4ff" fill-opacity="0.85" filter="url(#glow)"/>
+  </g>
+
+  <!-- dongle at the base of the Mac -->
+  <g transform="translate(392 372)">
+    <rect x="0" y="4" width="46" height="18" rx="4" fill="#2a2f45" stroke="#55608a" stroke-width="1.5"/>
+    <rect x="46" y="8" width="14" height="10" rx="1.5" fill="#8c93b4"/>
+    <circle cx="12" cy="13" r="3" fill="#6fe3ff" filter="url(#glow)"/>
+    <text x="23" y="-4" font-size="11" fill="#9aa3c7" text-anchor="middle">ESP32</text>
+  </g>
+  <!-- bluetooth waves from the dongle to the phone -->
+  <g fill="none" stroke="#6fe3ff" stroke-width="2" stroke-opacity="0.55" stroke-linecap="round">
+    <path d="M470 380 q30 -24 60 0"/>
+    <path d="M490 364 q40 -30 80 0" stroke-opacity="0.38"/>
+    <path d="M510 348 q50 -36 100 0" stroke-opacity="0.22"/>
+  </g>
+
+  <!-- iPhone -->
+  <g filter="url(#shadow)">
+    <rect x="612" y="52" width="190" height="372" rx="34" fill="#0c0d14" stroke="#363b55" stroke-width="2"/>
+    <rect x="622" y="62" width="170" height="352" rx="28" fill="url(#phoneScreen)"/>
+    <rect x="677" y="74" width="60" height="16" rx="8" fill="#0c0d14"/>
+    <!-- app grid -->
+    <g fill="#ffffff" fill-opacity="0.16">
+      <rect x="642" y="108" width="30" height="30" rx="8"/><rect x="682" y="108" width="30" height="30" rx="8"/><rect x="722" y="108" width="30" height="30" rx="8"/><rect x="762" y="108" width="20" height="30" rx="8"/>
+      <rect x="642" y="148" width="30" height="30" rx="8"/><rect x="682" y="148" width="30" height="30" rx="8"/><rect x="722" y="148" width="30" height="30" rx="8"/>
+      <rect x="642" y="188" width="30" height="30" rx="8"/><rect x="682" y="188" width="30" height="30" rx="8"/>
+    </g>
+    <!-- AssistiveTouch pointer -->
+    <circle cx="700" cy="258" r="14" fill="#ffffff" fill-opacity="0.22" stroke="#ffffff" stroke-opacity="0.85" stroke-width="2"/>
+    <circle cx="700" cy="258" r="3" fill="#ffffff"/>
+    <!-- dock -->
+    <rect x="636" y="366" width="142" height="38" rx="14" fill="#ffffff" fill-opacity="0.12"/>
+  </g>
+
+  <!-- cursor trail across the gap -->
+  <path d="M400 200 C 470 200, 520 235, 560 250 S 650 262, 686 258" fill="none" stroke="url(#trail)" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 9" />
+  <!-- faded cursors on the Mac -->
+  <g fill="#ffffff" stroke="#111" stroke-width="1.5" stroke-linejoin="round">
+    <path transform="translate(400 198) scale(0.85)" d="M0 0 L0 19 L4.6 15 L8.4 23.2 L12.4 21.4 L8.6 13.4 L14 13 Z" fill-opacity="0.25" stroke-opacity="0.25"/>
+    <path transform="translate(470 212) scale(0.9)" d="M0 0 L0 19 L4.6 15 L8.4 23.2 L12.4 21.4 L8.6 13.4 L14 13 Z" fill-opacity="0.5" stroke-opacity="0.5"/>
+    <path transform="translate(524 236) scale(0.95)" d="M0 0 L0 19 L4.6 15 L8.4 23.2 L12.4 21.4 L8.6 13.4 L14 13 Z" fill-opacity="0.8" stroke-opacity="0.8"/>
+  </g>
+
+  <!-- caption -->
+  <text x="60" y="422" font-size="15" fill="#c7cde6">Push the cursor past the edge of your Mac. It keeps going, on your iPhone.</text>
+</svg>
