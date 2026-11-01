@@ -19,6 +19,8 @@ final class Controller {
     private var edgeGuard: EdgeGuard
     private var cursor: PhoneCursor
     private var buttons: MouseButtons = []
+    private var keyboard = KeyboardState()
+    private(set) var intervalMs: Int?
     /// L'écran et la hauteur où le curseur a quitté le Mac, pour le remettre au même endroit.
     private var exitDisplay: CGRect = .zero
     private let prefs = Preferences.shared
@@ -34,7 +36,12 @@ final class Controller {
         serial = SerialPort(preferredPath: { Preferences.shared.portPath })
         edgeGuard = EdgeGuard(edge: prefs.edge, resistance: prefs.resistance)
         cursor = PhoneCursor(size: prefs.phoneSize, macSide: prefs.edge.opposite, gain: prefs.gain, returnResistance: prefs.returnResistance)
-        tap = EventTap { [weak self] type, event in self?.handle(type, event) ?? event }
+        // Pas de `self?.handle(…) ?? event` : le chaînage optionnel aplatit le nil qui veut dire « avaler »,
+        // et l'événement passait. Un nil de handle doit rester un nil.
+        tap = EventTap { [weak self] type, event in
+            guard let self else { return event }
+            return self.handle(type, event)
+        }
         serial.onLine = { [weak self] line in self?.received(line) }
         serial.onStateChange = { [weak self] in
             guard let self else { return }
@@ -70,7 +77,10 @@ final class Controller {
         guard serial.isOpen, let path = serial.path else { return "Dongle absent" }
         let name = (path as NSString).lastPathComponent
         guard let dongle else { return "Dongle sur \(name), en attente" }
-        if dongle.paired { return "Dongle sur \(name), relié à l'iPhone" }
+        if dongle.paired {
+            if let intervalMs { return "Dongle sur \(name), relié à l'iPhone (\(intervalMs) ms)" }
+            return "Dongle sur \(name), relié à l'iPhone"
+        }
         if dongle.connected { return "Dongle sur \(name), iPhone en cours d'appairage" }
         return "Dongle sur \(name), iPhone non relié"
     }
@@ -92,14 +102,23 @@ final class Controller {
     // MARK: - Événements
 
     private func handle(_ type: CGEventType, _ event: CGEvent) -> CGEvent? {
-        if type == .keyDown {
+        if type == .keyDown || type == .keyUp || type == .flagsChanged {
             let code = event.getIntegerValueField(.keyboardEventKeycode)
             let flags = event.flags.intersection([.maskControl, .maskAlternate, .maskCommand, .maskShift])
-            if code == hotKeyCode, flags == hotKeyFlags {
+            if type == .keyDown, code == hotKeyCode, flags == hotKeyFlags {
                 DispatchQueue.main.async { self.toggle() }
                 return nil
             }
-            return event
+            guard side == .phone else { return event }
+            // Le clavier suit la souris : tant qu'elle est sur l'iPhone, les touches y vont.
+            let lineToSend: String?
+            switch type {
+            case .keyDown: lineToSend = keyboard.press(macKeyCode: code, flags: flags)
+            case .keyUp: lineToSend = keyboard.release(macKeyCode: code, flags: flags)
+            default: lineToSend = keyboard.flags(flags)
+            }
+            if let lineToSend { serial.write(lineToSend) }
+            return nil
         }
         switch side {
         case .mac: return watchEdge(type, event)
@@ -108,9 +127,6 @@ final class Controller {
     }
 
     private func watchEdge(_ type: CGEventType, _ event: CGEvent) -> CGEvent? {
-        if type == .leftMouseDown || type == .rightMouseDown || type == .otherMouseDown {
-            log.notice("clic \(event.getIntegerValueField(.mouseEventButtonNumber)) laissé au Mac en \(event.location.x, format: .fixed(precision: 0)),\(event.location.y, format: .fixed(precision: 0))")
-        }
         guard type == .mouseMoved, canCross else { return event }
         let location = event.location
         guard let display = Displays.bounds(containing: location) else { return event }
@@ -140,7 +156,6 @@ final class Controller {
                 DispatchQueue.main.async { self.returnToMac(yFraction: y) }
             }
         case .leftMouseDown, .rightMouseDown, .otherMouseDown:
-            log.notice("clic \(event.getIntegerValueField(.mouseEventButtonNumber)) retenu pour l'iPhone")
             if let b = MouseButtons(macButton: event.getIntegerValueField(.mouseEventButtonNumber)) {
                 buttons.insert(b)
                 serial.write(Wire.buttons(buttons))
@@ -192,6 +207,7 @@ final class Controller {
         phonePointerAtMacSide = pointerAtMacSide
         serial.write(Wire.release)
         buttons = []
+        _ = keyboard.releaseAll()
         side = .mac
         edgeGuard.reset()
         let display = exitDisplay == .zero ? Displays.main : exitDisplay
@@ -207,6 +223,7 @@ final class Controller {
         switch Wire.parse(line) {
         case .status(let paired, let connected):
             dongle = (paired, connected)
+            intervalMs = Wire.interval(in: line)
         case .paired(let paired):
             dongle = (paired, paired || (dongle?.connected ?? false))
             if !paired {

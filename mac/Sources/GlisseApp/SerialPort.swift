@@ -24,8 +24,8 @@ final class SerialPort {
     func start() {
         tryOpen()
         retry = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
-            guard let self, !self.isOpen else { return }
-            self.tryOpen()
+            guard let self else { return }
+            if self.isOpen { self.write(Wire.status) } else { self.tryOpen() }
         }
     }
 

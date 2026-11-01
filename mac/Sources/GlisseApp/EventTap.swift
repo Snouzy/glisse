@@ -24,7 +24,7 @@ final class EventTap {
             CGEventType.mouseMoved, .leftMouseDown, .leftMouseUp, .leftMouseDragged,
             .rightMouseDown, .rightMouseUp, .rightMouseDragged,
             .otherMouseDown, .otherMouseUp, .otherMouseDragged,
-            .scrollWheel, .keyDown,
+            .scrollWheel, .keyDown, .keyUp, .flagsChanged,
         ].reduce(0) { $0 | (1 << $1.rawValue) }
 
         let info = Unmanaged.passUnretained(self).toOpaque()

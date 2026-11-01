@@ -33,6 +33,13 @@ public enum Wire {
     public static let status = "?\n"
     public static let forgetPairing = "!\n"
 
+    /// Ce que le dongle renvoie à `?` : "glisse 0.2 paired 1 connected 1 interval 15".
+    public static func interval(in line: String) -> Int? {
+        let words = line.split(separator: " ").map(String.init)
+        guard let i = words.firstIndex(of: "interval"), i + 1 < words.count else { return nil }
+        return Int(words[i + 1])
+    }
+
     public static func parse(_ line: String) -> WireReply? {
         let words = line.split(separator: " ").map(String.init)
         if words.first == "glisse", let p = words.firstIndex(of: "paired"), p + 1 < words.count,
