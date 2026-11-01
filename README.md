@@ -14,6 +14,10 @@ Push the cursor past the edge of the screen: it keeps going on the iPhone next t
 
 <img src="docs/images/hero.png" alt="A Mac display and an iPhone side by side: the cursor crosses the lit right edge of the Mac and lands on the iPhone as an AssistiveTouch pointer, an ESP32 dongle plugged into the Mac" width="860">
 
+<a href="docs/video/past-the-edge.mp4"><img src="docs/images/film-poster.jpg" alt="Past the Edge, a 20-second animated short about Glisse: the Mac cursor, disguised as a mouse, stretches the screen edge like rubber on its way to the iPhone. Click to play." width="720"></a>
+
+<sub><b>Past the Edge</b>: the 20-second film. A cursor, a very small dongle and a bad idea. Sound on.</sub>
+
 </div>
 
 Glisse is a free, open-source take on **Universal Control for the iPhone**. Apple only does it with an iPad, and
