@@ -75,8 +75,6 @@ public struct KeyboardState: Sendable {
     }
 
     private var report: String {
-        var padded = keys
-        while padded.count < 6 { padded.append(0) }
-        return "K \(modifiers) " + padded.map(String.init).joined(separator: " ") + "\n"
+        Wire.keyboard(modifiers: modifiers, keys: keys)
     }
 }

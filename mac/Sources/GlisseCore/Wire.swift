@@ -29,6 +29,15 @@ public enum Wire {
     public static func move(dx: Int, dy: Int) -> String { "M \(dx) \(dy)\n" }
     public static func scroll(dz: Int, dh: Int) -> String { "S \(dz) \(dh)\n" }
     public static func buttons(_ buttons: MouseButtons) -> String { "B \(buttons.rawValue)\n" }
+    /// Un rapport clavier complet : octet de modificateurs, puis jusqu'à six codes d'usage HID.
+    public static func keyboard(modifiers: UInt8, keys: [UInt8]) -> String {
+        var padded = keys
+        while padded.count < 6 { padded.append(0) }
+        return "K \(modifiers) " + padded.map(String.init).joined(separator: " ") + "\n"
+    }
+    /// ⌘[ : le retour en arrière standard d'iOS, pour le bouton arrière de la souris.
+    public static let back = keyboard(modifiers: 0x08, keys: [0x2F])
+    public static let backRelease = keyboard(modifiers: 0, keys: [])
     public static let release = "R\n"
     public static let status = "?\n"
     public static let forgetPairing = "!\n"

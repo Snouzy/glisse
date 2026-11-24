@@ -20,6 +20,10 @@ final class Controller {
     private var cursor: PhoneCursor
     private var response: Response
     private var buttons: MouseButtons = []
+    /// Le bouton arrière est tenu et sert de ⌘[ : il ne doit pas partir comme un clic de souris.
+    private var backChordDown = false
+    /// Le relâchement programmé de ⌘[, pour qu'un appui reste un appui même si le bouton ne remonte pas.
+    private var backReleaseWork: DispatchWorkItem?
     private var keyboard = KeyboardState()
     private(set) var intervalMs: Int?
     /// L'écran et la hauteur où le curseur a quitté le Mac, pour le remettre au même endroit.
@@ -93,15 +97,20 @@ final class Controller {
     }
 
     var statusText: String {
-        guard serial.isOpen, let path = serial.path else { return "Dongle absent" }
+        let device = prefs.device.name
+        guard serial.isOpen, let path = serial.path else { return NSLocalizedString("Dongle absent", comment: "") }
         let name = (path as NSString).lastPathComponent
-        guard let dongle else { return "Dongle sur \(name), en attente" }
+        guard let dongle else { return String(format: NSLocalizedString("Dongle sur %1$@, en attente", comment: ""), name) }
         if dongle.paired {
-            if let intervalMs { return "Dongle sur \(name), relié à l'iPhone (\(intervalMs) ms)" }
-            return "Dongle sur \(name), relié à l'iPhone"
+            if let intervalMs {
+                return String(format: NSLocalizedString("Dongle sur %1$@, relié à l'%2$@ (%3$d ms)", comment: ""), name, device, intervalMs)
+            }
+            return String(format: NSLocalizedString("Dongle sur %1$@, relié à l'%2$@", comment: ""), name, device)
         }
-        if dongle.connected { return "Dongle sur \(name), iPhone en cours d'appairage" }
-        return "Dongle sur \(name), iPhone non relié"
+        if dongle.connected {
+            return String(format: NSLocalizedString("Dongle sur %1$@, %2$@ en cours d'appairage", comment: ""), name, device)
+        }
+        return String(format: NSLocalizedString("Dongle sur %1$@, %2$@ non relié", comment: ""), name, device)
     }
 
     var canCross: Bool { serial.isOpen && (dongle?.paired ?? false) }
@@ -131,6 +140,9 @@ final class Controller {
             }
             guard side == .phone else { return event }
             // Le clavier suit la souris : tant qu'elle est sur l'iPhone, les touches y vont.
+            if type == .keyDown, code == 33, flags.contains(.maskCommand) {
+                log.notice("⌘[ reçu du clavier du Mac, renvoyé à l'iPhone")
+            }
             let lineToSend: String?
             switch type {
             case .keyDown: lineToSend = keyboard.press(macKeyCode: code, flags: flags)
@@ -177,11 +189,26 @@ final class Controller {
                 DispatchQueue.main.async { self.returnToMac(yFraction: y) }
             }
         case .leftMouseDown, .rightMouseDown, .otherMouseDown:
+            if prefs.backButtonSendsBack, event.getIntegerValueField(.mouseEventButtonNumber) == 3 {
+                // Un appui = un ⌘[, jamais une touche tenue : iOS répéterait le raccourci jusqu'à la racine.
+                guard !backChordDown else { return nil }
+                backChordDown = true
+                log.notice("bouton arrière → ⌘[")
+                serial.write(Wire.back)
+                let release = DispatchWorkItem { [weak self] in self?.releaseBackChord() }
+                backReleaseWork = release
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.08, execute: release)
+                return nil
+            }
             if let b = MouseButtons(macButton: event.getIntegerValueField(.mouseEventButtonNumber)) {
                 buttons.insert(b)
                 serial.write(Wire.buttons(buttons))
             }
         case .leftMouseUp, .rightMouseUp, .otherMouseUp:
+            if event.getIntegerValueField(.mouseEventButtonNumber) == 3, backChordDown {
+                releaseBackChord()
+                return nil
+            }
             if let b = MouseButtons(macButton: event.getIntegerValueField(.mouseEventButtonNumber)) {
                 buttons.remove(b)
                 serial.write(Wire.buttons(buttons))
@@ -195,6 +222,15 @@ final class Controller {
             return event
         }
         return nil
+    }
+
+    /// Relâche ⌘[ une seule fois, que le bouton remonte ou que le minuteur arrive en premier.
+    private func releaseBackChord() {
+        guard backChordDown else { return }
+        backChordDown = false
+        backReleaseWork?.cancel()
+        backReleaseWork = nil
+        serial.write(Wire.backRelease)
     }
 
     // MARK: - Passages
@@ -229,6 +265,9 @@ final class Controller {
         phonePointerAtMacSide = pointerAtMacSide
         serial.write(Wire.release)
         buttons = []
+        backChordDown = false
+        backReleaseWork?.cancel()
+        backReleaseWork = nil
         _ = keyboard.releaseAll()
         side = .mac
         edgeGuard.reset()

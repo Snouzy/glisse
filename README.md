@@ -44,7 +44,7 @@ nothing on the network: the iPhone just thinks it has a mouse.
 | --- | --- |
 | **A Mac** | macOS 14 or later, Xcode 16 or the Command Line Tools (Swift 5.10). |
 | **An ESP32 board** | Any ESP32 with Bluetooth: a classic ESP32 dev kit (WROOM), an ESP32-S3 or an ESP32-C3. Not the S2 (no Bluetooth). Around $5. |
-| **An iPhone** | iOS 13 or later: Glisse uses the system's AssistiveTouch mouse support, nothing else. An iPad works the same way. |
+| **An iPhone or an iPad** | iOS/iPadOS 13 or later: Glisse uses the system's AssistiveTouch mouse support, nothing else. The iPad works the same way; pick **iPad** in the settings so the pointer starts on the right screen size. |
 | **A cable** | The board stays plugged into the Mac. |
 
 ## Install
@@ -63,18 +63,24 @@ make upload                 # BOARD=classic by default; BOARD=s3 or BOARD=c3 for
 ```
 
 The port is detected (`/dev/cu.usbserial*`, `usbmodem*`…); pass `PORT=/dev/cu.xxx` if you have several.
-`make monitor` opens the serial monitor: type `?` to get `glisse 0.2 paired 0 connected 0 interval 15`.
+`make monitor` opens the serial monitor: type `?` to get `glisse 0.3 paired 0 connected 0 interval 15`.
 
 > On an Apple Silicon Mac without Rosetta, the `ctags` tool Arduino ships is x86-only. `brew install ctags`, then
 > replace `~/Library/Arduino15/packages/builtin/tools/ctags/5.8-arduino11/ctags` with a symlink to
 > `/opt/homebrew/bin/ctags`.
 
-### 2. Pair the iPhone
+### 2. Pair the iPhone or iPad
 
 Settings › Accessibility › Touch › **AssistiveTouch**: turn it on, then **Devices › Bluetooth Devices › Glisse**.
 No code to type. In the same screen, set the **pointer speed to the minimum**: the Mac estimates where the iOS
 pointer is, and iOS's own acceleration makes the estimate drift. For a pointer you can actually see, go to
 Accessibility › **Pointer Control**: increase contrast, pick a color, make it bigger, and turn off auto-hide.
+
+The dongle holds one device at a time, even though it can remember several. To pair an iPad while an iPhone is
+already paired, turn the iPhone's Bluetooth off (or take it out of range) until the iPad is connected, otherwise
+the iPhone grabs the dongle and the iPad never sees it. iPadOS 13.4 or later is required for a Bluetooth pointer.
+To move the dongle to another device deliberately, use **Forget the pairing** in Settings: it clears the bonds
+and drops the current link, so the other device can pair.
 
 ### 3. Install the Mac app
 
@@ -92,8 +98,8 @@ hoc otherwise (macOS then forgets the permission after each rebuild).
 
 ## Use it
 
-- **Go**: push the cursor against the edge of the screen (right by default). After a short resistance it is on the
-  iPhone; the Mac's cursor stays parked and hidden at the edge.
+- **Go**: push the cursor against the edge of the screen (right by default, or left if that is where the phone
+  sits; see Settings). After a short resistance it is on the iPhone; the Mac's cursor stays parked and hidden at the edge.
 - **Click, scroll, type**: everything goes to the iPhone. A right click opens the AssistiveTouch menu.
 - **Come back**: push the pointer against the Mac side of the iPhone, or press the shortcut (**⌃⌥⌘P** by default)
   from anywhere. The shortcut also sends the cursor over from wherever it is, and brings it back to the same spot.
@@ -110,25 +116,27 @@ Menu › **Settings…** (⌘,). Every change applies immediately.
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/settings-dark.png">
-    <img src="docs/images/settings-light.png" alt="The Glisse settings window: dongle status, shortcut recorder, iPhone side and edge resistance, pointer speed and linearity, scroll direction, return resistance and iPhone size" width="520">
+    <img src="docs/images/settings-light.png" alt="The Glisse settings window: dongle status, shortcut recorder, device and side, pointer speed and linearity, scroll direction, return resistance, screen size and language" width="520">
   </picture>
 </p>
 
 | Setting | What it does |
 | --- | --- |
 | **Shortcut** | Click the button, press the combination you want. It needs ⌃, ⌥ or ⌘ (or a function key); Esc cancels. |
-| **iPhone side** | Left or right of the Mac. |
+| **Device** | iPhone or iPad. Sets the starting screen size for the pointer; fine-tune it with the width and height sliders. |
+| **Device side** | Left or right of the Mac. This is the edge of the Mac screen the cursor leaves from. |
 | **Edge resistance** | How hard to push against the edge before crossing, so you don't fall onto the iPhone by accident. |
 | **Speed** | Mouse units sent to the iPhone per point moved on the Mac. |
 | **Linearity** | At 1 the motion is proportional. Below, small moves are amplified and big ones held back, to compensate for the acceleration iOS adds on top of macOS's. 0.75 by default. |
 | **Invert scroll** | For the wheel direction you expect on the phone. |
 | **Return resistance** | How far to push against the Mac side of the iPhone before coming back. Absorbs the gap between the estimated pointer and the real one. |
-| **iPhone width / height** | What the pointer travels from edge to edge, in mouse units. Too small and you come back to the Mac too early; too big and you cross the phone several times. |
+| **Screen width / height** | What the pointer travels from edge to edge, in mouse units. Too small and you come back to the Mac too early; too big and you cross the phone several times. |
+| **Language** | Follows the Mac by default; French and English can be forced here. Relaunch to apply. |
 | **Serial port** | Leave empty to pick the first USB serial port. |
 | **Restart the dongle** | Pulses the board's reset line through the serial port. Handy when the iPhone forgot Glisse and the dongle still thinks it is connected. Pairing is kept. |
 | **Forget pairing** | Clears the dongle's Bluetooth bonds, after a confirmation. Then forget Glisse on the iPhone and pair again. |
 
-The app's interface is in French for now; English strings are a welcome contribution.
+The interface follows the Mac's language: French or English. Force one in Settings › Language.
 
 ## How it holds together
 
@@ -181,7 +189,9 @@ No. iOS has supported Bluetooth mice since iOS 13 through AssistiveTouch. Glisse
 macOS cannot act as a Bluetooth HID peripheral; it is always the host. A $5 board can.
 
 **Does it work with an iPad?**
-Yes, the same way. If the iPad is also linked with Universal Control, give each a different edge.
+Yes, the same way. Choose **iPad** in the settings first: the pointer then starts from the iPad's 4:3 screen
+instead of the phone's tall one, and you can fine-tune the width and height sliders. If the iPad is also linked
+with Universal Control, give each device a different edge.
 
 **Is the pointer position exact?**
 No: iOS never tells where its pointer is. The Mac estimates it, pins it to the edge at each crossing and keeps a
@@ -200,9 +210,10 @@ over Bluetooth.
 <details>
 <summary><strong>En français</strong></summary>
 
-Glisse fait passer la souris et le clavier du Mac sur l'iPhone posé à côté, comme Universal Control le fait
-avec un iPad. Pousse le curseur contre le bord de l'écran : il continue sur l'iPhone, avec les clics, la molette,
-les boutons latéraux et le clavier. Ramène-le par le même bord, ou avec le raccourci (⌃⌥⌘P par défaut).
+Glisse fait passer la souris et le clavier du Mac sur l'iPhone (ou l'iPad) posé à côté, comme Universal Control le
+fait avec un iPad. Pousse le curseur contre le bord de l'écran, à droite ou à gauche : il continue sur l'appareil,
+avec les clics, la molette, les boutons latéraux et le clavier. Ramène-le par le même bord, ou avec le raccourci
+(⌃⌥⌘P par défaut).
 
 Rien à installer sur l'iPhone : une carte ESP32 à 5 € branchée en USB au Mac se fait passer pour une souris et un
 clavier Bluetooth (AssistiveTouch), et une app dans la barre des menus lui envoie la vraie souris quand le curseur
@@ -211,9 +222,10 @@ est « sur l'iPhone ». Rien ne passe par le réseau.
 - **Montage** : flasher la carte (`cd firmware && make upload`), appairer l'iPhone dans Réglages › Accessibilité ›
   Toucher › AssistiveTouch › Appareils › Appareils Bluetooth, mettre la vitesse du pointeur au minimum, puis
   `cd mac && ./scripts/install.sh`. macOS demande l'accès Accessibilité.
-- **Réglages** (⌘,) : raccourci (clique, appuie la combinaison), côté de l'iPhone, résistance au bord, vitesse,
-  linéarité (compense l'accélération d'iOS), molette inversée, résistance au retour, taille de l'iPhone en unités,
-  port série, redémarrer le dongle, oublier l'appairage (avec confirmation).
+- **Réglages** (⌘,) : raccourci (clique, appuie la combinaison), appareil (iPhone ou iPad), côté de l'appareil
+  (droite ou gauche), résistance au bord, vitesse, linéarité (compense l'accélération d'iOS), molette inversée,
+  résistance au retour, taille de l'écran en unités, langue (français ou anglais), port série, redémarrer le
+  dongle, oublier l'appairage (avec confirmation).
 - **Universal Control** : si un autre Mac ou un iPad prend un bord, range-le du côté opposé dans Réglages Système
   › Écrans, et décoche la reconnexion automatique.
 - **Limite** : iOS ne dit pas où est son curseur ; le retour par le bord est une estimation recalée à chaque

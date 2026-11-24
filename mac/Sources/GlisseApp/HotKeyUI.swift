@@ -19,9 +19,10 @@ enum KeyLabel {
     ]
 
     static func name(for keyCode: Int64) -> String {
-        if let s = special[keyCode] { return s.name }
+        if let s = special[keyCode] { return NSLocalizedString(s.name, comment: "") }
         if let n = functionKeys[keyCode] { return "F\(n)" }
-        return character(for: keyCode)?.uppercased() ?? "touche \(keyCode)"
+        if let c = character(for: keyCode) { return c.uppercased() }
+        return String(format: NSLocalizedString("touche %ld", comment: ""), keyCode)
     }
 
     /// Le caractère de la touche sur la disposition clavier en cours, sans modificateur.

@@ -14,6 +14,13 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN/GlisseApp" "$APP/Contents/MacOS/Glisse"
 [ -f Resources/AppIcon.icns ] && cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 
+# Les traductions : macOS choisit le dossier .lproj au lancement d'après AppleLanguages.
+for lang in fr en; do
+  if [ -d "Resources/$lang.lproj" ]; then
+    cp -R "Resources/$lang.lproj" "$APP/Contents/Resources/"
+  fi
+done
+
 cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -21,6 +28,11 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <dict>
   <key>CFBundleDevelopmentRegion</key>
   <string>fr</string>
+  <key>CFBundleLocalizations</key>
+  <array>
+    <string>fr</string>
+    <string>en</string>
+  </array>
   <key>CFBundleIdentifier</key>
   <string>io.snouzy.glisse</string>
   <key>CFBundleName</key>
