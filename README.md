@@ -124,7 +124,7 @@ Menu › **Settings…** (⌘,). Every change applies immediately.
 | --- | --- |
 | **Shortcut** | Click the button, press the combination you want. It needs ⌃, ⌥ or ⌘ (or a function key); Esc cancels. |
 | **Device** | iPhone or iPad. Sets the starting screen size for the pointer; fine-tune it with the width and height sliders. |
-| **Device side** | Left or right of the Mac. This is the edge of the Mac screen the cursor leaves from. |
+| **Cursor edge** | Which edge of the Mac the cursor leaves from. Left means the device sits on the left and the pointer enters it from its right side. Also in the menu bar under **Cursor edge**. |
 | **Edge resistance** | How hard to push against the edge before crossing, so you don't fall onto the iPhone by accident. |
 | **Speed** | Mouse units sent to the iPhone per point moved on the Mac. |
 | **Linearity** | At 1 the motion is proportional. Below, small moves are amplified and big ones held back, to compensate for the acceleration iOS adds on top of macOS's. 0.75 by default. |

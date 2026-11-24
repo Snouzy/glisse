@@ -71,9 +71,11 @@ struct SettingsView: View {
                     Text("iPad").tag(Device.iPad.rawValue)
                 }
                 .pickerStyle(.segmented)
-                Picker("L'appareil est", selection: $edge) {
-                    Text("à droite du Mac").tag(Edge.right.rawValue)
-                    Text("à gauche du Mac").tag(Edge.left.rawValue)
+                // Ce que l'option change vraiment : le bord du Mac que le curseur franchit. L'appareil,
+                // lui, se trouve de ce côté-là et reçoit le pointeur par son bord opposé.
+                Picker("Le curseur sort par", selection: $edge) {
+                    Text("le bord gauche").tag(Edge.left.rawValue)
+                    Text("le bord droit").tag(Edge.right.rawValue)
                 }
                 .pickerStyle(.segmented)
                 slider("Résistance au bord", value: $resistance, in: 0...300, step: 10,

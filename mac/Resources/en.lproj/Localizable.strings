@@ -12,6 +12,9 @@
 "Autoriser Glisse dans Accessibilité…" = "Allow Glisse in Accessibility…";
 "Revenir au Mac" = "Return to the Mac";
 "Passer sur l'%1$@" = "Switch to the %1$@";
+"Sortie du curseur" = "Cursor edge";
+"Bord gauche" = "Left edge";
+"Bord droit" = "Right edge";
 "Réglages…" = "Settings…";
 "Redémarrer le dongle" = "Restart the dongle";
 "Oublier l'appairage du dongle…" = "Forget the dongle pairing…";
@@ -51,9 +54,9 @@
 "Clique, puis appuie sur la combinaison voulue. Il faut ⌃, ⌥ ou ⌘, ou une touche F. Échap annule." = "Click, then press the key combination you want. It needs ⌃, ⌥ or ⌘, or a function key. Escape cancels.";
 "Par défaut" = "Default";
 "Position" = "Position";
-"L'appareil est" = "The device is";
-"à droite du Mac" = "to the right of the Mac";
-"à gauche du Mac" = "to the left of the Mac";
+"Le curseur sort par" = "The cursor leaves from";
+"le bord gauche" = "the left edge";
+"le bord droit" = "the right edge";
 "Résistance au bord" = "Edge resistance";
 "Combien pousser contre le bord de l'écran avant de passer sur l'appareil." = "How far to push against the screen edge before switching to the device.";
 "Souris sur l'appareil" = "Mouse on the device";

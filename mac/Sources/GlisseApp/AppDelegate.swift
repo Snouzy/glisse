@@ -69,6 +69,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         toggle.target = self
         toggle.isEnabled = controller.canCross || controller.side == .phone
         menu.addItem(toggle)
+
+        let edgeTitle = NSLocalizedString("Sortie du curseur", comment: "")
+        let edgeItem = NSMenuItem(title: edgeTitle, action: nil, keyEquivalent: "")
+        let edgeMenu = NSMenu(title: edgeTitle)
+        for edge in [Edge.left, Edge.right] {
+            let title = edge == .left
+                ? NSLocalizedString("Bord gauche", comment: "")
+                : NSLocalizedString("Bord droit", comment: "")
+            let item = NSMenuItem(title: title, action: #selector(chooseEdge(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = edge.rawValue
+            item.state = Preferences.shared.edge == edge ? .on : .off
+            edgeMenu.addItem(item)
+        }
+        edgeItem.submenu = edgeMenu
+        menu.addItem(edgeItem)
         menu.addItem(.separator())
 
         let settings = NSMenuItem(title: NSLocalizedString("Réglages…", comment: ""), action: #selector(openSettings), keyEquivalent: ",")
@@ -92,6 +108,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func toggleSide() { controller.toggle() }
+
+    /// Changer le bord de sortie depuis la barre des menus, sans ouvrir les Réglages.
+    @objc private func chooseEdge(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String, let edge = Edge(rawValue: raw) else { return }
+        Preferences.shared.edge = edge
+        controller.applyPreferences()
+        refresh()
+    }
 
     @objc private func openSettings() {
         settingsWindow.show(SettingsActions(

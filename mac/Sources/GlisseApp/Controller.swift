@@ -76,7 +76,13 @@ final class Controller {
 
     /// À rappeler quand un réglage change.
     func applyPreferences() {
-        edgeGuard = EdgeGuard(edge: prefs.edge, resistance: prefs.resistance)
+        let newEdge = prefs.edge
+        // Changer de côté pendant que la souris est sur l'appareil laisserait le curseur virtuel sur
+        // l'ancienne géométrie : on rentre d'abord, et le nouveau côté sert au passage suivant.
+        if side == .phone, newEdge != edgeGuard.edge {
+            returnToMac(yFraction: cursor.position.y / cursor.size.height, pointerAtMacSide: false)
+        }
+        edgeGuard = EdgeGuard(edge: newEdge, resistance: prefs.resistance)
         response = Response(gain: prefs.gain, linearity: prefs.linearity)
         hotKey = prefs.hotKey
         // Changer la taille ou le côté en plein vol perdrait la position estimée : on ne remplace le curseur
