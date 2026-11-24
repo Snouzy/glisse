@@ -1,16 +1,19 @@
 import AppKit
 import SwiftUI
+import GlisseCore
 
 /// Rend les captures du README hors écran, sans rien afficher : `GlisseApp --screenshots docs/images`.
 enum Screenshots {
     static func run(into directory: String) throws {
         let dir = URL(fileURLWithPath: directory)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        let actions = SettingsActions(status: { "Dongle sur usbserial-0001, relié à l'iPhone (15 ms)" },
+        let status = String(format: NSLocalizedString("Dongle sur %1$@, relié à l'%2$@ (%3$d ms)", comment: ""),
+                            "usbserial-0001", Device.iPhone.name, 15)
+        let actions = SettingsActions(status: { status },
                                       apply: {}, forgetPairing: {}, resetDongle: {}, setHotKeyEnabled: { _ in })
         for (name, appearance) in [("settings-light", NSAppearance.Name.aqua), ("settings-dark", .darkAqua)] {
             let view = SettingsView(actions: actions)
-            try render(view, size: NSSize(width: 520, height: 985), appearance: appearance,
+            try render(view, size: NSSize(width: 520, height: 1220), appearance: appearance,
                        to: dir.appendingPathComponent("\(name).png"))
         }
         print("==> Captures dans \(directory)")

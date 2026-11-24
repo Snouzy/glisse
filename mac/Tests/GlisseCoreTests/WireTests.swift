@@ -23,6 +23,17 @@ struct WireTests {
         #expect(Wire.status == "?\n")
     }
 
+    @Test func keyboardLineIsPaddedToSixKeys() {
+        #expect(Wire.keyboard(modifiers: 0, keys: []) == "K 0 0 0 0 0 0 0\n")
+        #expect(Wire.keyboard(modifiers: 0x08, keys: [0x2F]) == "K 8 47 0 0 0 0 0\n")
+        #expect(Wire.keyboard(modifiers: 0x0B, keys: [0x04, 0x05]) == "K 11 4 5 0 0 0 0\n")
+    }
+
+    @Test func backChordIsCommandLeftBracket() {
+        #expect(Wire.back == "K 8 47 0 0 0 0 0\n")
+        #expect(Wire.backRelease == "K 0 0 0 0 0 0 0\n")
+    }
+
     @Test func macButtonNumbersMapToMask() {
         // CGEvent numérote : 0 gauche, 1 droit, 2 milieu, 3 arrière, 4 avant.
         #expect(MouseButtons(macButton: 0) == .left)

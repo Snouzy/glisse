@@ -1,0 +1,85 @@
+/* English. The French literals in the code are the lookup keys. */
+
+/* Barre des menus */
+"Glisse : autorise l'Accessibilité dans Réglages Système" = "Glisse: allow Accessibility in System Settings";
+"Glisse : dongle absent" = "Glisse: dongle not connected";
+"Glisse : %1$@ non relié" = "Glisse: %1$@ not connected";
+"Glisse : la souris est sur l'%1$@" = "Glisse: the mouse is on the %1$@";
+"Glisse : prêt, pousse le curseur au bord" = "Glisse: ready, push the cursor to the edge";
+"La souris est sur l'%1$@" = "The mouse is on the %1$@";
+"La souris est sur le Mac" = "The mouse is on the Mac";
+"Sans Accessibilité, Glisse voit la souris mais ne peut pas la retenir" = "Without Accessibility, Glisse sees the mouse but cannot hold it";
+"Autoriser Glisse dans Accessibilité…" = "Allow Glisse in Accessibility…";
+"Revenir au Mac" = "Return to the Mac";
+"Passer sur l'%1$@" = "Switch to the %1$@";
+"Sortie du curseur" = "Cursor edge";
+"Bord gauche" = "Left edge";
+"Bord droit" = "Right edge";
+"Réglages…" = "Settings…";
+"Redémarrer le dongle" = "Restart the dongle";
+"Oublier l'appairage du dongle…" = "Forget the dongle pairing…";
+"Quitter Glisse" = "Quit Glisse";
+
+/* Oublier l'appairage */
+"Oublier l'appairage du dongle ?" = "Forget the dongle pairing?";
+"Le dongle efface ses liens Bluetooth. Il faudra ensuite oublier « Glisse » dans les réglages Bluetooth de l'%1$@ et le réappairer depuis AssistiveTouch." = "The dongle erases its Bluetooth links. You will then need to forget “Glisse” in the %1$@ Bluetooth settings and pair it again from AssistiveTouch.";
+"Oublier" = "Forget";
+"Annuler" = "Cancel";
+
+/* État du dongle */
+"Dongle absent" = "Dongle not connected";
+"Dongle sur %1$@, en attente" = "Dongle on %1$@, waiting";
+"Dongle sur %1$@, relié à l'%2$@ (%3$d ms)" = "Dongle on %1$@, connected to the %2$@ (%3$d ms)";
+"Dongle sur %1$@, relié à l'%2$@" = "Dongle on %1$@, connected to the %2$@";
+"Dongle sur %1$@, %2$@ en cours d'appairage" = "Dongle on %1$@, pairing with the %2$@";
+"Dongle sur %1$@, %2$@ non relié" = "Dongle on %1$@, %2$@ not connected";
+
+/* Touches */
+"Espace" = "Space";
+"touche %ld" = "key %ld";
+
+/* Réglages */
+"Réglages de Glisse" = "Glisse Settings";
+"Dongle" = "Dongle";
+"État" = "Status";
+"Port série" = "Serial port";
+"détecté tout seul" = "detected automatically";
+"Laisser vide pour prendre le premier port USB série trouvé." = "Leave empty to use the first USB serial port found.";
+"Si l'appareil ne trouve plus « Glisse » : le dongle redémarre et repart en annonce, sans perdre l'appairage." = "If the device can no longer find “Glisse”: the dongle restarts and starts advertising again without losing the pairing.";
+"Oublier l'appairage…" = "Forget the pairing…";
+"Efface les liens Bluetooth du dongle. Demande confirmation." = "Erases the dongle's Bluetooth links. Asks for confirmation.";
+"Raccourci" = "Shortcut";
+"Passer sur l'appareil et revenir" = "Switch to the device and back";
+"Appuie sur la combinaison…" = "Press the key combination…";
+"Clique, puis appuie sur la combinaison voulue. Il faut ⌃, ⌥ ou ⌘, ou une touche F. Échap annule." = "Click, then press the key combination you want. It needs ⌃, ⌥ or ⌘, or a function key. Escape cancels.";
+"Par défaut" = "Default";
+"Position" = "Position";
+"Le curseur sort par" = "The cursor leaves from";
+"le bord gauche" = "the left edge";
+"le bord droit" = "the right edge";
+"Résistance au bord" = "Edge resistance";
+"Combien pousser contre le bord de l'écran avant de passer sur l'appareil." = "How far to push against the screen edge before switching to the device.";
+"Souris sur l'appareil" = "Mouse on the device";
+"Vitesse" = "Speed";
+"Unités envoyées à l'appareil par point de déplacement sur le Mac." = "Units sent to the device per point of movement on the Mac.";
+"Linéarité" = "Linearity";
+"proportionnel" = "proportional";
+"À 1, le mouvement est proportionnel. En dessous, les petits gestes sont amplifiés et les grands retenus, pour compenser l'accélération d'iOS." = "At 1, movement is proportional. Below that, small gestures are amplified and large ones damped to offset the acceleration added by iOS.";
+"Inverser la molette" = "Invert scrolling";
+"Bouton arrière → ⌘[" = "Back button → ⌘[";
+"Le bouton arrière de la souris envoie ⌘[ à l'appareil au lieu d'un clic : retour en arrière dans les apps qui gèrent ce raccourci." = "The mouse back button sends ⌘[ to the device instead of a click: back in apps that support that shortcut.";
+"Retour au Mac" = "Return to the Mac";
+"Appareil" = "Device";
+"Résistance au retour" = "Return resistance";
+"Combien pousser contre le bord côté Mac, sur l'appareil, avant de revenir. Absorbe l'écart entre le curseur estimé et le vrai." = "How far to push against the Mac side edge on the device before coming back. Absorbs the gap between the estimated cursor and the real one.";
+"Largeur de l'écran" = "Screen width";
+"Ce que le curseur parcourt d'un bord à l'autre, en unités de souris. Trop petit : on revient au Mac trop tôt." = "What the cursor covers from one edge to the other, in mouse units. Too small and you come back to the Mac too early.";
+"Hauteur de l'écran" = "Screen height";
+"Même unité, pour la hauteur." = "Same unit, for the height.";
+"%1$@ bascule la souris à la main. Sur l'appareil, réglez la vitesse du pointeur au minimum dans Accessibilité › Toucher › AssistiveTouch." = "%1$@ switches the mouse by hand. On the device, set the pointer speed to the minimum in Accessibility › Touch › AssistiveTouch.";
+"Langue" = "Language";
+"Système" = "System";
+"Français" = "Français";
+"Le changement s'applique au prochain lancement." = "The change applies the next time Glisse starts.";
+"Relancer Glisse" = "Relaunch Glisse";
+"Quitte Glisse et le rouvre tout de suite pour appliquer la langue." = "Quits Glisse and opens it again right away to apply the language.";

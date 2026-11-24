@@ -3,7 +3,8 @@
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
-DEST="$HOME/Applications/Glisse.app"
+DEST="/Applications/Glisse.app"
+if [ ! -w /Applications ]; then DEST="$HOME/Applications/Glisse.app"; fi
 
 ./scripts/build-app.sh
 
@@ -15,7 +16,7 @@ if pgrep -x Glisse >/dev/null; then
 fi
 
 echo "==> Installation dans $DEST"
-mkdir -p "$HOME/Applications"
+mkdir -p "$(dirname "$DEST")"
 rm -rf "$DEST"
 cp -R build/Glisse.app "$DEST"
 

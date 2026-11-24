@@ -6,8 +6,10 @@ set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 OUT="../docs/images"
 
-swift build -c release --product GlisseApp
-.build/release/GlisseApp --screenshots "$OUT"
+# Le bundle porte les .lproj : on le construit, puis un ordre explicite rend les captures en anglais,
+# comme le README, quel que soit la langue du Mac.
+./scripts/build-app.sh >/dev/null
+"build/Glisse.app/Contents/MacOS/Glisse" --screenshots "$OUT" -AppleLanguages "(en)"
 
 if command -v rsvg-convert >/dev/null; then
   for svg in "$OUT"/src/*.svg; do

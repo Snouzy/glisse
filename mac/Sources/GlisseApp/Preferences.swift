@@ -12,6 +12,12 @@ final class Preferences {
         set { defaults.set(newValue.rawValue, forKey: "edge") }
     }
 
+    /// L'appareil posé à côté du Mac : iPhone ou iPad. Donne la taille d'écran par défaut et le nom affiché.
+    var device: Device {
+        get { Device(rawValue: defaults.string(forKey: "device") ?? "") ?? .iPhone }
+        set { defaults.set(newValue.rawValue, forKey: "device") }
+    }
+
     /// Unités de souris envoyées par point de déplacement sur le Mac.
     var gain: Double {
         get { defaults.object(forKey: "gain") as? Double ?? 2.0 }
@@ -41,8 +47,9 @@ final class Preferences {
     /// Dépend de la vitesse du pointeur réglée dans iOS ; à ajuster à l'usage.
     var phoneSize: CGSize {
         get {
-            let w = defaults.object(forKey: "phoneWidth") as? Double ?? 1200
-            let h = defaults.object(forKey: "phoneHeight") as? Double ?? 2600
+            let fallback = device.screenSize
+            let w = defaults.object(forKey: "phoneWidth") as? Double ?? fallback.width
+            let h = defaults.object(forKey: "phoneHeight") as? Double ?? fallback.height
             return CGSize(width: w, height: h)
         }
         set {
@@ -55,6 +62,12 @@ final class Preferences {
     var invertScroll: Bool {
         get { defaults.bool(forKey: "invertScroll") }
         set { defaults.set(newValue, forKey: "invertScroll") }
+    }
+
+    /// Le bouton arrière de la souris envoie ⌘[ à l'iPhone au lieu d'un clic de bouton 4.
+    var backButtonSendsBack: Bool {
+        get { defaults.object(forKey: "backButtonSendsBack") as? Bool ?? true }
+        set { defaults.set(newValue, forKey: "backButtonSendsBack") }
     }
 
     /// Le raccourci qui bascule la souris entre le Mac et l'iPhone.

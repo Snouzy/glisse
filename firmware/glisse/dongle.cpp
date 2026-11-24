@@ -15,7 +15,7 @@
 #include <NimBLEDevice.h>
 #include <NimBLEHIDDevice.h>
 
-static const char *VERSION = "0.2";
+static const char *VERSION = "0.3";
 static const uint32_t BAUD = 115200;
 static const uint8_t REPORT_MOUSE = 1;
 static const uint8_t REPORT_KEYBOARD = 2;
@@ -159,6 +159,10 @@ static void handle(const char *cmd) {
       break;
     case '!':
       NimBLEDevice::deleteAllBonds();
+      // Couper la liaison en cours : sinon l'appareil reste connecté avec un lien dont le lien est effacé,
+      // et il faut débrancher le dongle pour passer à un autre appareil.
+      if (connected) server->disconnect(connHandle);
+      else NimBLEDevice::startAdvertising();
       Serial.println("bonds cleared");
       break;
     default:
@@ -222,8 +226,11 @@ void setup() {
   NimBLEAdvertising *adv = NimBLEDevice::getAdvertising();
   adv->setAppearance(0x03C2);  // souris
   adv->addServiceUUID(hid->getHidService()->getUUID());
-  adv->setName("Glisse");
+  // Le nom doit d'abord aller dans la réponse de scan : l'annonce fait déjà 25 octets (drapeaux,
+  // apparence, UUID HID 128 bits), donc « Glisse » n'y tient pas et serait perdu. Sans nom dans la
+  // réponse de scan, un appareil jamais appairé (un iPad) ne le voit pas.
   adv->enableScanResponse(true);
+  adv->setName("Glisse");
   adv->start();
 }
 

@@ -9,9 +9,12 @@ struct SettingsView: View {
     @AppStorage("linearity") private var linearity: Double = 0.75
     @AppStorage("resistance") private var resistance: Double = 80
     @AppStorage("returnResistance") private var returnResistance: Double = 300
-    @AppStorage("phoneWidth") private var phoneWidth: Double = 1200
-    @AppStorage("phoneHeight") private var phoneHeight: Double = 2600
+    @AppStorage("phoneWidth") private var phoneWidth: Double = Preferences.shared.phoneSize.width
+    @AppStorage("phoneHeight") private var phoneHeight: Double = Preferences.shared.phoneSize.height
+    @AppStorage("device") private var device: String = Device.iPhone.rawValue
+    @AppStorage("language") private var language: String = Language.system.rawValue
     @AppStorage("invertScroll") private var invertScroll: Bool = false
+    @AppStorage("backButtonSendsBack") private var backButtonSendsBack: Bool = true
     @AppStorage("portPath") private var portPath: String = ""
 
     let actions: SettingsActions
@@ -28,7 +31,7 @@ struct SettingsView: View {
                     .help("Laisser vide pour prendre le premier port USB série trouvé.")
                 HStack {
                     Button("Redémarrer le dongle", action: actions.resetDongle)
-                        .help("Si l'iPhone ne trouve plus « Glisse » : le dongle redémarre et repart en annonce, sans perdre l'appairage.")
+                        .help("Si l'appareil ne trouve plus « Glisse » : le dongle redémarre et repart en annonce, sans perdre l'appairage.")
                     Button("Oublier l'appairage…", action: actions.forgetPairing)
                         .help("Efface les liens Bluetooth du dongle. Demande confirmation.")
                 }
@@ -36,7 +39,7 @@ struct SettingsView: View {
 
             Section("Raccourci") {
                 HStack {
-                    Text("Passer sur l'iPhone et revenir")
+                    Text("Passer sur l'appareil et revenir")
                     Spacer()
                     Button {
                         if recorder.isRecording { recorder.stop() } else {
@@ -47,9 +50,7 @@ struct SettingsView: View {
                             }
                         }
                     } label: {
-                        Text(recorder.isRecording
-                             ? (recorder.pendingModifiers.isEmpty ? "Appuie sur la combinaison…" : HotKey(keyCode: 0, flags: recorder.pendingModifiers).modifierSymbols + "…")
-                             : KeyLabel.display(hotKey))
+                        Text(hotKeyLabel)
                             .monospaced()
                             .frame(minWidth: 180)
                     }
@@ -65,42 +66,66 @@ struct SettingsView: View {
             }
 
             Section("Position") {
-                Picker("L'iPhone est", selection: $edge) {
-                    Text("à droite du Mac").tag(Edge.right.rawValue)
-                    Text("à gauche du Mac").tag(Edge.left.rawValue)
+                Picker("Appareil", selection: $device) {
+                    Text("iPhone").tag(Device.iPhone.rawValue)
+                    Text("iPad").tag(Device.iPad.rawValue)
+                }
+                .pickerStyle(.segmented)
+                // Ce que l'option change vraiment : le bord du Mac que le curseur franchit. L'appareil,
+                // lui, se trouve de ce côté-là et reçoit le pointeur par son bord opposé.
+                Picker("Le curseur sort par", selection: $edge) {
+                    Text("le bord gauche").tag(Edge.left.rawValue)
+                    Text("le bord droit").tag(Edge.right.rawValue)
                 }
                 .pickerStyle(.segmented)
                 slider("Résistance au bord", value: $resistance, in: 0...300, step: 10,
                        format: "\(Int(resistance)) pt",
-                       help: "Combien pousser contre le bord de l'écran avant de passer sur l'iPhone.")
+                       help: "Combien pousser contre le bord de l'écran avant de passer sur l'appareil.")
             }
 
-            Section("Souris sur l'iPhone") {
+            Section("Souris sur l'appareil") {
                 slider("Vitesse", value: $gain, in: 0.25...5, step: 0.25,
                        format: "× \(gain.formatted())",
-                       help: "Unités envoyées à l'iPhone par point de déplacement sur le Mac.")
+                       help: "Unités envoyées à l'appareil par point de déplacement sur le Mac.")
                 slider("Linéarité", value: $linearity, in: 0.4...1, step: 0.05,
-                       format: linearity >= 0.999 ? "proportionnel" : linearity.formatted(.number.precision(.fractionLength(2))),
+                       format: linearity >= 0.999 ? NSLocalizedString("proportionnel", comment: "") : linearity.formatted(.number.precision(.fractionLength(2))),
                        help: "À 1, le mouvement est proportionnel. En dessous, les petits gestes sont amplifiés et les grands retenus, pour compenser l'accélération d'iOS.")
                 Toggle("Inverser la molette", isOn: $invertScroll)
+                Toggle("Bouton arrière → ⌘[", isOn: $backButtonSendsBack)
+                    .help("Le bouton arrière de la souris envoie ⌘[ à l'appareil au lieu d'un clic : retour en arrière dans les apps qui gèrent ce raccourci.")
             }
 
             Section("Retour au Mac") {
                 slider("Résistance au retour", value: $returnResistance, in: 0...1500, step: 50,
                        format: "\(Int(returnResistance)) u",
-                       help: "Combien pousser contre le bord côté Mac, sur l'iPhone, avant de revenir. Absorbe l'écart entre le curseur estimé et le vrai.")
-                slider("Largeur de l'iPhone", value: $phoneWidth, in: 400...4000, step: 100,
+                       help: "Combien pousser contre le bord côté Mac, sur l'appareil, avant de revenir. Absorbe l'écart entre le curseur estimé et le vrai.")
+                slider("Largeur de l'écran", value: $phoneWidth, in: 400...4000, step: 100,
                        format: "\(Int(phoneWidth)) u",
                        help: "Ce que le curseur parcourt d'un bord à l'autre, en unités de souris. Trop petit : on revient au Mac trop tôt.")
-                slider("Hauteur de l'iPhone", value: $phoneHeight, in: 800...8000, step: 100,
+                slider("Hauteur de l'écran", value: $phoneHeight, in: 800...8000, step: 100,
                        format: "\(Int(phoneHeight)) u",
                        help: "Même unité, pour la hauteur.")
             }
 
             Section {
-                Text("\(KeyLabel.display(hotKey)) bascule la souris à la main. Sur l'iPhone, réglez la vitesse du pointeur au minimum dans Accessibilité › Toucher › AssistiveTouch.")
+                Text(String(format: NSLocalizedString("%1$@ bascule la souris à la main. Sur l'appareil, réglez la vitesse du pointeur au minimum dans Accessibilité › Toucher › AssistiveTouch.", comment: ""), KeyLabel.display(hotKey)))
                     .font(.callout)
                     .foregroundStyle(.secondary)
+            }
+
+            Section("Langue") {
+                Picker("Langue", selection: $language) {
+                    Text("Système").tag(Language.system.rawValue)
+                    Text("Français").tag(Language.fr.rawValue)
+                    Text("English").tag(Language.en.rawValue)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                Text("Le changement s'applique au prochain lancement.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                Button("Relancer Glisse") { Language.relaunch() }
+                    .help("Quitte Glisse et le rouvre tout de suite pour appliquer la langue.")
             }
         }
         .formStyle(.grouped)
@@ -114,11 +139,30 @@ struct SettingsView: View {
         .onChange(of: returnResistance) { actions.apply() }
         .onChange(of: phoneWidth) { actions.apply() }
         .onChange(of: phoneHeight) { actions.apply() }
+        .onChange(of: device) { applyDevicePreset() }
+        .onChange(of: language) { (Language(rawValue: language) ?? .system).apply() }
         .onChange(of: invertScroll) { actions.apply() }
         .onChange(of: portPath) { actions.apply() }
     }
 
-    private func slider(_ title: String, value: Binding<Double>, in range: ClosedRange<Double>, step: Double, format: String, help: String) -> some View {
+    /// Ce qu'affiche le bouton du raccourci : la combinaison en place, ou la touche en cours d'enregistrement.
+    private var hotKeyLabel: LocalizedStringKey {
+        if recorder.isRecording {
+            if recorder.pendingModifiers.isEmpty { return "Appuie sur la combinaison…" }
+            return LocalizedStringKey(HotKey(keyCode: 0, flags: recorder.pendingModifiers).modifierSymbols + "…")
+        }
+        return LocalizedStringKey(KeyLabel.display(hotKey))
+    }
+
+    /// Changer d'appareil remet la taille d'écran du modèle, puis l'applique tout de suite.
+    private func applyDevicePreset() {
+        guard let preset = Device(rawValue: device) else { return }
+        phoneWidth = preset.screenSize.width
+        phoneHeight = preset.screenSize.height
+        actions.apply()
+    }
+
+    private func slider(_ title: LocalizedStringKey, value: Binding<Double>, in range: ClosedRange<Double>, step: Double, format: String, help: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(title)
@@ -148,10 +192,10 @@ final class SettingsWindow {
         if window == nil {
             let view = SettingsView(actions: actions)
             // Sans taille explicite, un Form groupé dans un NSHostingController donne une fenêtre de 1 × 32.
-            let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 760),
+            let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 880),
                              styleMask: [.titled, .closable], backing: .buffered, defer: false)
             w.contentView = NSHostingView(rootView: view)
-            w.title = "Réglages de Glisse"
+            w.title = NSLocalizedString("Réglages de Glisse", comment: "")
             w.isReleasedWhenClosed = false
             w.setFrameAutosaveName("GlisseSettings")
             w.center()
